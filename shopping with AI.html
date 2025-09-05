@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Shopping Store - Smart Shopping with AI Assistance</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍️</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'navy': '#1e3a8a',
+                        'dark-gray': '#374151',
+                        'teal': '#14b8a6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        
+        .fade-in { animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .slide-in { animation: slideIn 0.5s ease-out; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        
+        .bounce-in { animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        @keyframes bounceIn { 
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .card-hover { 
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border: 1px solid #e5e7eb;
+        }
+        .card-hover:hover { 
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-color: #14b8a6;
+        }
+        
+        .chat-bubble { animation: chatPop 0.3s ease-out; }
+        @keyframes chatPop { from { transform: scale(0) translateY(20px); } to { transform: scale(1) translateY(0); } }
+        
+        .typing-indicator::after {
+            content: '...';
+            animation: typing 1.5s infinite;
+        }
+        @keyframes typing {
+            0%, 60% { content: '...'; }
+            30% { content: '..'; }
+            90% { content: '.'; }
+        }
+        
+        .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #14b8a6 100%); }
+        
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .product-image:hover {
+            transform: scale(1.05);
+        }
+        
+        .notification-slide {
+            animation: notificationSlide 0.5s ease-out;
+        }
+        
+        @keyframes notificationSlide {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-white text-dark-gray">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="text-2xl font-bold text-navy">🛍️ AI Shopping Store</div>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" onclick="showPage('home')" class="nav-link text-dark-gray hover:text-navy px-3 py-2 font-medium transition-colors">Home</a>
+                    <a href="#" onclick="showPage('products')" class="nav-link text-dark-gray hover:text-navy px-3 py-2 font-medium transition-colors">Products</a>
+                    <a href="#" onclick="showPage('about')" class="nav-link text-dark-gray hover:text-navy px-3 py-2 font-medium transition-colors">About Us</a>
+                    <a href="#" onclick="showPage('contact')" class="nav-link text-dark-gray hover:text-navy px-3 py-2 font-medium transition-colors">Contact</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="showPage('cart')" class="relative p-2 text-dark-gray hover:text-navy transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9m-9 0h9"></path>
+                        </svg>
+                        <span id="cart-count" class="absolute -top-1 -right-1 bg-teal text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div class="md:hidden px-4 pb-4">
+            <div class="flex flex-col space-y-2">
+                <a href="#" onclick="showPage('home')" class="text-dark-gray hover:text-navy px-3 py-2 font-medium transition-colors">Home</a>
+                <a href="#" onclick="showPage('products')" class="text-dark-gray hover:text-navy px-3 py-2 font-medium transition-colors">Products</a>
+                <a href="#" onclick="showPage('about')" class="text-dark-gray hover:text-navy px-3 py-2 font-medium transition-colors">About Us</a>
+                <a href="#" onclick="showPage('contact')" class="text-dark-gray hover:text-navy px-3 py-2 font-medium transition-colors">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Page -->
+    <div id="home-page" class="page">
+        <!-- Hero Section -->
+        <section class="gradient-bg text-white py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <div class="fade-in">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6">Smart Shopping with AI Assistance</h1>
+                    <p class="text-xl md:text-2xl mb-8 opacity-90">Discover amazing products with personalized recommendations from our AI shopping assistant</p>
+                    <button onclick="showPage('products')" class="bg-white text-navy px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors bounce-in">
+                        Start Shopping 🛒
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="py-20 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold text-navy mb-4">Why Choose AI Shopping?</h2>
+                    <p class="text-xl text-gray-600">Experience the future of online shopping</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-white p-8 rounded-xl shadow-lg card-hover text-center">
+                        <div class="text-4xl mb-4">🤖</div>
+                        <h3 class="text-xl font-semibold mb-4 text-navy">AI Assistant</h3>
+                        <p class="text-gray-600">Get instant help finding products, comparing prices, and making decisions with our smart AI chatbot.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg card-hover text-center">
+                        <div class="text-4xl mb-4">🎯</div>
+                        <h3 class="text-xl font-semibold mb-4 text-navy">Smart Recommendations</h3>
+                        <p class="text-gray-600">Discover products tailored to your preferences and get suggestions for related items you'll love.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg card-hover text-center">
+                        <div class="text-4xl mb-4">⚡</div>
+                        <h3 class="text-xl font-semibold mb-4 text-navy">Fast & Secure</h3>
+                        <p class="text-gray-600">Enjoy quick product searches, secure checkout, and reliable customer service.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Products Page -->
+    <div id="products-page" class="page hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center mb-12">
+                <h1 class="text-3xl font-bold text-navy mb-4">Our Products</h1>
+                <p class="text-gray-600">Discover amazing products across different categories</p>
+            </div>
+            
+            <!-- Category Filter -->
+            <div class="mb-8 flex flex-wrap justify-center gap-4">
+                <button onclick="filterProducts('all')" class="filter-btn bg-navy text-white px-6 py-2 rounded-lg font-medium">All</button>
+                <button onclick="filterProducts('shoes')" class="filter-btn bg-gray-200 text-dark-gray px-6 py-2 rounded-lg font-medium hover:bg-gray-300">Shoes</button>
+                <button onclick="filterProducts('bags')" class="filter-btn bg-gray-200 text-dark-gray px-6 py-2 rounded-lg font-medium hover:bg-gray-300">Bags</button>
+                <button onclick="filterProducts('electronics')" class="filter-btn bg-gray-200 text-dark-gray px-6 py-2 rounded-lg font-medium hover:bg-gray-300">Electronics</button>
+                <button onclick="filterProducts('accessories')" class="filter-btn bg-gray-200 text-dark-gray px-6 py-2 rounded-lg font-medium hover:bg-gray-300">Accessories</button>
+            </div>
+
+            <!-- Products Grid -->
+            <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Products will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Page -->
+    <div id="cart-page" class="page hidden">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <h1 class="text-3xl font-bold text-navy mb-8">Shopping Cart</h1>
+            <div id="cart-items" class="space-y-4 mb-8">
+                <!-- Cart items will be populated by JavaScript -->
+            </div>
+            <div class="bg-gray-50 p-6 rounded-xl">
+                <div class="flex justify-between items-center text-xl font-semibold mb-6">
+                    <span>Total Amount:</span>
+                    <span id="cart-total" class="text-navy">₹0</span>
+                </div>
+                <button onclick="proceedToCheckout()" class="w-full bg-navy text-white py-4 rounded-lg font-semibold hover:bg-blue-800 transition-colors">
+                    🔒 Proceed to Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Page -->
+    <div id="about-page" class="page hidden">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-navy mb-6">About AI Shopping Store</h1>
+                <p class="text-xl text-gray-600">Revolutionizing online shopping with artificial intelligence</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-12 items-center mb-16">
+                <div>
+                    <h2 class="text-2xl font-semibold mb-6 text-navy">Why AI Shopping Assistant?</h2>
+                    <div class="space-y-4 text-gray-600">
+                        <p>Our AI Shopping Assistant transforms your shopping experience by understanding your needs and preferences in natural language. No more endless scrolling through products!</p>
+                        <ul class="space-y-2">
+                            <li>✅ <strong>Smart Product Search:</strong> Find exactly what you need with natural language queries</li>
+                            <li>✅ <strong>Personalized Recommendations:</strong> Get suggestions based on your preferences and budget</li>
+                            <li>✅ <strong>Instant Customer Support:</strong> 24/7 AI assistance for all your shopping questions</li>
+                            <li>✅ <strong>Review Summaries:</strong> Quick insights from customer reviews to help you decide</li>
+                            <li>✅ <strong>Price Comparisons:</strong> Find the best deals within your budget range</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div class="text-8xl mb-4">🤖</div>
+                    <h3 class="text-xl font-semibold text-navy mb-2">AI-Powered Shopping</h3>
+                    <p class="text-gray-600">Making online shopping smarter, faster, and more personalized</p>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 p-8 rounded-xl">
+                <h3 class="text-2xl font-semibold mb-4 text-navy text-center">Our Mission</h3>
+                <p class="text-gray-600 text-center text-lg">To make online shopping effortless and enjoyable by leveraging artificial intelligence to understand customer needs and provide personalized shopping experiences.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Page -->
+    <div id="contact-page" class="page hidden">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-navy mb-6">Contact Us</h1>
+                <p class="text-xl text-gray-600">Get in touch with us for any queries or support</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-12">
+                <div>
+                    <h2 class="text-2xl font-semibold mb-6 text-navy">Contact Information</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-4">👤</span>
+                            <div>
+                                <p class="font-semibold">Swathi Karanam</p>
+                                <p class="text-gray-600">Founder & AI Shopping Expert</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-4">📍</span>
+                            <span>Hyderabad, Telangana, India</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-4">📧</span>
+                            <span>shoppingwithai@gmail.com</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-4">🤖</span>
+                            <span>24/7 AI Assistant Available</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <h3 class="text-xl font-semibold mb-4 text-navy">Business Hours</h3>
+                        <div class="space-y-2 text-gray-600">
+                            <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
+                            <p>Saturday: 10:00 AM - 4:00 PM</p>
+                            <p>Sunday: AI Assistant Only</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-6 rounded-xl">
+                    <h3 class="text-xl font-semibold mb-4 text-navy">Send us a Message</h3>
+                    <form class="space-y-4" onsubmit="submitContactForm(event)">
+                        <input type="text" id="contact-name" placeholder="Your Name" required class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-navy">
+                        <input type="email" id="contact-email" placeholder="Your Email" required class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-navy">
+                        <input type="text" id="contact-subject" placeholder="Subject" required class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-navy">
+                        <textarea id="contact-message" placeholder="Your Message" rows="4" required class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-navy"></textarea>
+                        <button type="submit" class="w-full bg-navy text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark-gray text-white py-12 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="text-2xl font-bold mb-4">🛍️ AI Shopping Store</div>
+                    <p class="text-gray-300">Smart shopping experience powered by artificial intelligence.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="#" onclick="showPage('home')" class="hover:text-white transition-colors">Home</a></li>
+                        <li><a href="#" onclick="showPage('products')" class="hover:text-white transition-colors">Products</a></li>
+                        <li><a href="#" onclick="showPage('about')" class="hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="#" onclick="showPage('contact')" class="hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-4">Categories</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>Shoes & Footwear</li>
+                        <li>Bags & Accessories</li>
+                        <li>Electronics</li>
+                        <li>Mobile & Gadgets</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-4">AI Features</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>Smart Product Search</li>
+                        <li>Personalized Recommendations</li>
+                        <li>Review Summaries</li>
+                        <li>24/7 AI Support</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-600 mt-8 pt-8 text-center text-gray-300">
+                <p>&copy; 2025 Swathi Karanam | All Rights Reserved</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- AI Chatbot -->
+    <div id="chatbot-container" class="fixed bottom-6 right-6 z-50">
+        <button id="chat-toggle" onclick="toggleChat()" class="bg-teal text-white p-4 rounded-full shadow-lg hover:bg-teal-600 transition-colors bounce-in">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.955 8.955 0 01-4.126-.98L3 21l1.98-5.874A8.955 8.955 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"></path>
+            </svg>
+        </button>
+        
+        <div id="chat-window" class="hidden absolute bottom-16 right-0 w-80 bg-white rounded-xl shadow-2xl border">
+            <div class="bg-navy text-white p-4 rounded-t-xl">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-semibold">🤖 AI Shopping Assistant</h3>
+                    <button onclick="toggleChat()" class="text-white hover:text-gray-200">✕</button>
+                </div>
+            </div>
+            <div id="chat-messages" class="h-64 overflow-y-auto p-4 space-y-3">
+                <div class="bg-gray-100 p-3 rounded-lg chat-bubble">
+                    <p class="text-sm">Hi! I'm your AI shopping assistant. Ask me about products, prices, or get personalized recommendations! Try asking "Do you have formal shoes under ₹2000?"</p>
+                </div>
+            </div>
+            <div class="p-4 border-t">
+                <div class="flex gap-2">
+                    <input id="chat-input" type="text" placeholder="Ask me anything..." class="flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy">
+                    <button onclick="sendMessage()" class="bg-navy text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-800 transition-colors">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample product data
+        const products = [
+            // Shoes
+            {
+                id: 1,
+                name: "Bata Formal Shoes",
+                price: 1799,
+                image: "👞",
+                category: "shoes",
+                description: "Classic black formal shoes perfect for office wear",
+                reviews: "Great quality leather and comfortable fit. Perfect for daily office use.",
+                rating: 4.2
+            },
+            {
+                id: 2,
+                name: "Woodland Leather Shoes",
+                price: 1999,
+                image: "👞",
+                category: "shoes",
+                description: "Premium leather formal shoes with excellent durability",
+                reviews: "Excellent build quality and very comfortable. Worth the price.",
+                rating: 4.5
+            },
+            {
+                id: 3,
+                name: "Nike Running Shoes",
+                price: 3499,
+                image: "👟",
+                category: "shoes",
+                description: "Lightweight running shoes with superior cushioning",
+                reviews: "Amazing for running and workouts. Very comfortable and stylish.",
+                rating: 4.7
+            },
+            {
+                id: 4,
+                name: "Adidas Sneakers",
+                price: 2899,
+                image: "👟",
+                category: "shoes",
+                description: "Trendy sneakers perfect for casual wear",
+                reviews: "Stylish design and good comfort. Great for everyday use.",
+                rating: 4.3
+            },
+            
+            // Bags
+            {
+                id: 5,
+                name: "Leather Laptop Bag",
+                price: 2499,
+                image: "💼",
+                category: "bags",
+                description: "Professional leather laptop bag with multiple compartments",
+                reviews: "Excellent quality leather and spacious. Perfect for professionals.",
+                rating: 4.4
+            },
+            {
+                id: 6,
+                name: "Travel Backpack",
+                price: 1899,
+                image: "🎒",
+                category: "bags",
+                description: "Large capacity travel backpack with water-resistant material",
+                reviews: "Very spacious and durable. Great for travel and hiking.",
+                rating: 4.6
+            },
+            {
+                id: 7,
+                name: "Designer Handbag",
+                price: 3299,
+                image: "👜",
+                category: "bags",
+                description: "Elegant designer handbag for women",
+                reviews: "Beautiful design and good quality. Perfect for parties and events.",
+                rating: 4.1
+            },
+            
+            // Electronics
+            {
+                id: 8,
+                name: "Gaming Laptop",
+                price: 65999,
+                image: "💻",
+                category: "electronics",
+                description: "High-performance gaming laptop with RTX graphics",
+                reviews: "Excellent gaming performance and build quality. Great value for money.",
+                rating: 4.8
+            },
+            {
+                id: 9,
+                name: "Smartphone Pro",
+                price: 45999,
+                image: "📱",
+                category: "electronics",
+                description: "Latest smartphone with AI camera and 5G connectivity",
+                reviews: "Amazing camera quality and fast performance. Battery life is excellent.",
+                rating: 4.6
+            },
+            {
+                id: 10,
+                name: "Boat Headphones",
+                price: 1999,
+                image: "🎧",
+                category: "electronics",
+                description: "Wireless Bluetooth headphones with noise cancellation",
+                reviews: "Great sound quality and battery backup, but comfort could be improved.",
+                rating: 4.2
+            },
+            {
+                id: 11,
+                name: "Smart Watch",
+                price: 8999,
+                image: "⌚",
+                category: "electronics",
+                description: "Fitness tracking smartwatch with heart rate monitor",
+                reviews: "Accurate fitness tracking and good battery life. Very useful features.",
+                rating: 4.4
+            },
+            
+            // Accessories
+            {
+                id: 12,
+                name: "Wireless Mouse",
+                price: 899,
+                image: "🖱️",
+                category: "accessories",
+                description: "Ergonomic wireless mouse with long battery life",
+                reviews: "Very responsive and comfortable to use. Great for office work.",
+                rating: 4.3
+            },
+            {
+                id: 13,
+                name: "Phone Case",
+                price: 499,
+                image: "📱",
+                category: "accessories",
+                description: "Protective phone case with shock absorption",
+                reviews: "Good protection and fits perfectly. Value for money.",
+                rating: 4.0
+            },
+            {
+                id: 14,
+                name: "Power Bank",
+                price: 1299,
+                image: "🔋",
+                category: "accessories",
+                description: "10000mAh power bank with fast charging",
+                reviews: "Charges devices quickly and holds charge well. Compact design.",
+                rating: 4.5
+            }
+        ];
+
+        let cart = [];
+        let currentPage = 'home';
+        let currentFilter = 'all';
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            showPage('home');
+            displayProducts(products);
+            
+            // Add enter key support for chat
+            document.getElementById('chat-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        });
+
+        function showPage(page) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+            
+            // Show selected page
+            document.getElementById(page + '-page').classList.remove('hidden');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('text-navy', 'font-semibold');
+                link.classList.add('text-dark-gray');
+            });
+            
+            currentPage = page;
+            
+            // Add fade-in animation
+            document.getElementById(page + '-page').classList.add('fade-in');
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        function displayProducts(productsToShow) {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = '';
+            
+            productsToShow.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'bg-white rounded-xl shadow-lg overflow-hidden card-hover';
+                productCard.innerHTML = `
+                    <div class="p-6">
+                        <div class="text-6xl text-center mb-4">${product.image}</div>
+                        <h3 class="text-lg font-semibold mb-2 text-navy">${product.name}</h3>
+                        <p class="text-gray-600 text-sm mb-4">${product.description}</p>
+                        <div class="flex items-center mb-4">
+                            <span class="text-yellow-500">${'★'.repeat(Math.floor(product.rating))}</span>
+                            <span class="text-gray-400 ml-2 text-sm">(${product.rating})</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl font-bold text-navy">₹${product.price.toLocaleString()}</span>
+                            <button onclick="addToCart(${product.id})" class="bg-teal text-white px-4 py-2 rounded-lg hover:bg-teal-600 transition-colors text-sm font-medium">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(productCard);
+            });
+        }
+
+        function filterProducts(category) {
+            currentFilter = category;
+            
+            // Update filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-navy', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-dark-gray');
+            });
+            
+            event.target.classList.remove('bg-gray-200', 'text-dark-gray');
+            event.target.classList.add('bg-navy', 'text-white');
+            
+            // Filter products
+            const filteredProducts = category === 'all' ? products : products.filter(p => p.category === category);
+            displayProducts(filteredProducts);
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({...product, quantity: 1});
+            }
+            
+            updateCartUI();
+            showNotification(`${product.name} added to cart!`);
+        }
+
+        function updateCartUI() {
+            const cartCount = document.getElementById('cart-count');
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+            
+            // Update cart page
+            const cartItems = document.getElementById('cart-items');
+            const cartTotal = document.getElementById('cart-total');
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<div class="text-center py-12"><p class="text-gray-500 text-lg">Your cart is empty</p><button onclick="showPage(\'products\')" class="mt-4 bg-navy text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition-colors">Continue Shopping</button></div>';
+                cartTotal.textContent = '₹0';
+                return;
+            }
+            
+            cartItems.innerHTML = '';
+            let total = 0;
+            
+            cart.forEach(item => {
+                total += item.price * item.quantity;
+                const cartItem = document.createElement('div');
+                cartItem.className = 'bg-white p-4 rounded-lg shadow flex items-center justify-between';
+                cartItem.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="text-3xl mr-4">${item.image}</span>
+                        <div>
+                            <h3 class="font-semibold">${item.name}</h3>
+                            <p class="text-gray-600">₹${item.price.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <button onclick="updateQuantity(${item.id}, -1)" class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">-</button>
+                            <span class="px-3 font-medium">${item.quantity}</span>
+                            <button onclick="updateQuantity(${item.id}, 1)" class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">+</button>
+                        </div>
+                        <button onclick="removeFromCart(${item.id})" class="text-red-500 hover:text-red-700 p-2">🗑️</button>
+                    </div>
+                `;
+                cartItems.appendChild(cartItem);
+            });
+            
+            cartTotal.textContent = `₹${total.toLocaleString()}`;
+        }
+
+        function updateQuantity(productId, change) {
+            const item = cart.find(item => item.id === productId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    removeFromCart(productId);
+                } else {
+                    updateCartUI();
+                }
+            }
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCartUI();
+            showNotification('Item removed from cart');
+        }
+
+        function proceedToCheckout() {
+            if (cart.length === 0) {
+                showNotification('Your cart is empty!');
+                return;
+            }
+            
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            showNotification(`🔒 Order placed successfully! Total: ₹${total.toLocaleString()} (Demo)`);
+            cart = [];
+            updateCartUI();
+        }
+
+        function submitContactForm(event) {
+            event.preventDefault();
+            const name = document.getElementById('contact-name').value;
+            const email = document.getElementById('contact-email').value;
+            const subject = document.getElementById('contact-subject').value;
+            const message = document.getElementById('contact-message').value;
+            
+            showNotification(`Thank you ${name}! Your message has been sent. We'll get back to you soon. (Demo)`);
+            
+            // Reset form
+            event.target.reset();
+        }
+
+        // AI Chatbot Functions
+        function toggleChat() {
+            const chatWindow = document.getElementById('chat-window');
+            chatWindow.classList.toggle('hidden');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            addChatMessage(message, 'user');
+            input.value = '';
+            
+            // Show typing indicator
+            addTypingIndicator();
+            
+            // Simulate AI response
+            setTimeout(() => {
+                removeTypingIndicator();
+                const response = generateAIResponse(message);
+                addChatMessage(response, 'ai');
+            }, 1500);
+        }
+
+        function addChatMessage(message, sender) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-bubble ${sender === 'user' ? 'bg-navy text-white ml-8' : 'bg-gray-100 mr-8'} p-3 rounded-lg`;
+            messageDiv.innerHTML = `<p class="text-sm">${message}</p>`;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function addTypingIndicator() {
+            const messagesContainer = document.getElementById('chat-messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.className = 'bg-gray-100 mr-8 p-3 rounded-lg';
+            typingDiv.innerHTML = '<p class="text-sm typing-indicator">AI is thinking</p>';
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function generateAIResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            // Handle formal shoes query
+            if (lowerMessage.includes('formal shoes') && lowerMessage.includes('2000')) {
+                const formalShoes = products.filter(p => p.category === 'shoes' && p.name.toLowerCase().includes('formal') && p.price <= 2000);
+                if (formalShoes.length > 0) {
+                    const shoesList = formalShoes.map(shoe => `${shoe.name} ₹${shoe.price}`).join(', ');
+                    return `Yes, here are ${formalShoes.length} formal shoes under ₹2000: ${shoesList}. Would you like me to add one to your cart?`;
+                }
+            }
+            
+            // Handle Apple Vision Pro query
+            if (lowerMessage.includes('apple vision pro')) {
+                return "Currently, Apple Vision Pro is not in our catalog. However, here are some alternatives you might like: Smart Watch ₹8,999, Boat Headphones ₹1,999. These offer great tech features within budget!";
+            }
+            
+            // Handle Boat Headphones review query
+            if (lowerMessage.includes('boat headphones') && (lowerMessage.includes('review') || lowerMessage.includes('customers say'))) {
+                const boatProduct = products.find(p => p.name.toLowerCase().includes('boat headphones'));
+                if (boatProduct) {
+                    return boatProduct.reviews;
+                }
+            }
+            
+            // Handle general product searches
+            if (lowerMessage.includes('shoes')) {
+                const shoes = products.filter(p => p.category === 'shoes');
+                const shoesList = shoes.slice(0, 3).map(shoe => `${shoe.name} ₹${shoe.price}`).join(', ');
+                return `I found ${shoes.length} shoes in our catalog. Here are some popular ones: ${shoesList}. Would you like to see more or filter by price?`;
+            }
+            
+            if (lowerMessage.includes('laptop')) {
+                const laptops = products.filter(p => p.name.toLowerCase().includes('laptop'));
+                if (laptops.length > 0) {
+                    const laptop = laptops[0];
+                    return `Yes! We have ${laptop.name} for ₹${laptop.price.toLocaleString()}. ${laptop.description}. Customer reviews: ${laptop.reviews}`;
+                }
+            }
+            
+            if (lowerMessage.includes('headphones') || lowerMessage.includes('headphone')) {
+                const headphones = products.filter(p => p.name.toLowerCase().includes('headphones'));
+                if (headphones.length > 0) {
+                    const headphone = headphones[0];
+                    return `We have ${headphone.name} for ₹${headphone.price}. ${headphone.description}. Customer feedback: ${headphone.reviews}`;
+                }
+            }
+            
+            if (lowerMessage.includes('phone') || lowerMessage.includes('smartphone')) {
+                const phones = products.filter(p => p.name.toLowerCase().includes('smartphone') || p.name.toLowerCase().includes('phone'));
+                if (phones.length > 0) {
+                    const phone = phones[0];
+                    return `Check out our ${phone.name} for ₹${phone.price.toLocaleString()}. ${phone.description}. Reviews: ${phone.reviews}`;
+                }
+            }
+            
+            // Handle price-based queries
+            if (lowerMessage.includes('under') || lowerMessage.includes('below')) {
+                const priceMatch = lowerMessage.match(/under ₹?(\d+)|below ₹?(\d+)/);
+                if (priceMatch) {
+                    const maxPrice = parseInt(priceMatch[1] || priceMatch[2]);
+                    const affordableProducts = products.filter(p => p.price <= maxPrice);
+                    if (affordableProducts.length > 0) {
+                        const productsList = affordableProducts.slice(0, 3).map(p => `${p.name} ₹${p.price}`).join(', ');
+                        return `I found ${affordableProducts.length} products under ₹${maxPrice}: ${productsList}. Would you like to see more options?`;
+                    }
+                }
+            }
+            
+            // Handle recommendations
+            if (lowerMessage.includes('recommend') || lowerMessage.includes('suggest')) {
+                const topProducts = products.filter(p => p.rating >= 4.5).slice(0, 3);
+                const recommendations = topProducts.map(p => `${p.name} ₹${p.price} (${p.rating}★)`).join(', ');
+                return `Based on customer ratings, I recommend: ${recommendations}. These are our top-rated products!`;
+            }
+            
+            // Handle cart-related queries
+            if (lowerMessage.includes('cart') || lowerMessage.includes('add')) {
+                return `I can help you add items to your cart! Just tell me which product you're interested in, and I'll provide details and help you add it. You can also browse our products page to see all available items.`;
+            }
+            
+            // Default response
+            return `I'm here to help you find the perfect products! You can ask me about:
+            
+• Specific products (e.g., "Do you have formal shoes under ₹2000?")
+• Product reviews (e.g., "What do customers say about Boat Headphones?")
+• Recommendations based on your budget
+• Product comparisons and alternatives
+
+What would you like to know about?`;
+        }
+
+        function showNotification(message) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-6 bg-teal text-white px-6 py-3 rounded-lg shadow-lg z-50 notification-slide';
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'notificationSlide 0.5s reverse';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'979e0ecc54e93fb4',t:'MTc1Njk5NDg5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
